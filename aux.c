@@ -10,8 +10,8 @@ data * init_data()
 {
 //******************************************************************************
 //Data 1
-//******************************************************************************
-	int numbers1[n][n] = {
+/*******************************************************************************
+	int numbers[n][n] = {
 		{ -2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{1, -3, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{0, 1, -2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -33,14 +33,14 @@ data * init_data()
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, -1, 1},
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -3} };
 
-	int BAD1[nu] = {14, 18};
-	int ZKBAD1[nu] = {56, 20};
+	int BAD[nu] = {14, 18};
+	int ZKBAD[nu] = {56, 20};
 
-//******************************************************************************
+//*****************************************************************************/
 //Data 2
 //******************************************************************************
 
-	int numbers2[n][n] = {
+	int numbers[n][n] = {
 		{-1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,},
 		{0,-2,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
 		{0,1,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,},
@@ -68,8 +68,9 @@ data * init_data()
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,},
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-4,1,},
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2}};
-	int BAD2[nu] = {0,9,14};
-	int ZKBAD2[nu] = {182,261,345};
+	int BAD[nu] = {0,9,14};
+	int ZKBAD[nu] = {182,261,345};
+//*****************************************************************************/
 
 	int i,j;
 	data * I = malloc(sizeof(data));
@@ -77,13 +78,13 @@ data * init_data()
 	I->ZKbad = malloc(nu*sizeof(int));
 	for(i=0; i<nu; i++)
 	{
-		I->bad[i] = BAD2[i];
-		I->ZKbad[i] = ZKBAD2[i];
+		I->bad[i] = BAD[i];
+		I->ZKbad[i] = ZKBAD[i];
 	}
 	I->m = malloc(n*n*sizeof(int));
 	for(i=0; i<n; i++)
 		for(j=0; j<n; j++)
-			I->m[n*i+j] = numbers2[i][j];
+			I->m[n*i+j] = numbers[i][j];
 	return I;
 }
 
@@ -150,26 +151,38 @@ point * create_point(int s, point * p)
 	for(i=0; i<nu; i++)
 	{
 		new->up[i] = NULL;
-		new->down[i] = p->updown[nu*s+i];
-		if(new->down[i] != NULL)
+		if(new->coord[new->I->bad[i]] != 0)
+		{
+			new->down[i] = p->updown[nu*s+i];
 			new->down[i]->up[i] = new;
+		}
+		else
+			new->down[i] = NULL;
 		new->updown[nu*i+i] = new;
 	}
 	
 	for(i=0; i<nu; i++)
 		for(j=0; j<nu; j++)
-			if(new->coord[new->I->bad[i]] < new->I->ZKbad[i]
-				&& 0 < new->coord[new->I->bad[j]])
+			if(is_in_box(new, i, j))
 			{
 				new->updown[nu*i+j] = p->updown[nu*s+j]->up[i];
-				if(p->updown[nu*s+j]->up[i] != NULL)
-					p->updown[nu*s+j]->up[i]->updown[nu*j+i] = new;
+				if(new->updown[nu*i+j] != NULL)
+					new->updown[nu*i+j]->updown[nu*j+i] = new;
 			}
+			
 
 //	printf("created  %d  %d %d\n", new, new->coord[new->I->bad[0]],
 //		           new->coord[new->I->bad[1]]);
 //	printf("downs: %d %d\n", p->up[0], p->up[0]);
 	return new;
+}
+
+int is_in_box(point * p, int i, int j)
+{
+	if(p->coord[p->I->bad[i]] < p->I->ZKbad[i]
+		&& 0 < p->coord[p->I->bad[j]])
+		return 1;
+	return 0;
 }
 
 int pos(int i)

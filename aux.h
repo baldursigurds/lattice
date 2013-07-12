@@ -77,6 +77,6 @@ void ALN(int s, point * p);
 // Delete a point from a linked list
 void del_point(point * p);
 
-// Find point
-//point * find_point(int s, point * p);
+// Are we still in the box if we move up i and down j?
+int is_in_box(point * p, int i, int j);
 #endif

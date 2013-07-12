@@ -13,24 +13,37 @@ int main()
 	root * R = init_root();
 	point * p = init_point(I, R);
 
-	int s,i,dummy;
+	int s,i,dummy,counter,neg,min;
 
 	point * step;
 	point * top = p;
 
 
-	printf("bads: %d %d\n", p->I->bad[0],p->I->bad[1]);
-	printf("bad values: %d %d\n", p->I->ZKbad[0],p->I->ZKbad[1]);
+	printf("bads:");
+	for(i=0; i<nu; i++)
+		printf(" %d", p->I->bad[i]);
+	printf("  bad values:");
+	for(i=0; i<nu; i++)
+		printf(" %d", p->I->ZKbad[i]);
+	printf("\n");
 	
+	counter = 0;
+	neg = 0;
 	while(p != NULL)
 	{
-//		printf("we're at");
-//		for(i=0; i<nu; i++)
-//			printf(" %d", p->coord[p->I->bad[i]]);
-//		printf("\nmin is %d, chi is %d\n", p->min, p->chi);
+		if(++counter % 10000 == 0)
+		{
+			printf("we're at");
+			for(i=0; i<nu; i++)
+				printf(" %d", p->coord[p->I->bad[i]]);
+			printf("\nmin is %d, chi is %d\n", p->min, p->chi);
+			printf("\n");
+		}
+		if(p->chi<1)
+			neg++;
 		for(s=0; s<nu; s++)
 		{
-			if(p->coord[I->bad[s]] != I->ZKbad[s])
+			if(p->coord[I->bad[s]] < I->ZKbad[s])
 			{
 				step = p->up[s];
 				if(step == NULL)
@@ -58,8 +71,9 @@ if(dummy < step->min)
 			if(p->down[i]!=NULL)
 				del_point(p->down[i]);
 
+		min = p->min;
 		p = p->next;
 	}
-	printf("lok!\n");
+	printf("\nmin: %d, neg: %d, total: %d.\n", min, neg, counter);
 }
 
