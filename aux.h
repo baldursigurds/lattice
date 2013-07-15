@@ -2,59 +2,25 @@
 #define __aux_h__
 
 //corresponding to data 1
-//#define nu 2
-//#define n 20
+#define nu 2
+#define n 20
 
 // corresponding to data 2
-#define nu 3
-#define n 27
+//#define nu 3
+//#define n 27
 
 
 // The basic set of data
 typedef struct data data;
-struct data
-{
-	int *m;
-	int *bad;
-	int *ZKbad;
-};
-
-// Nodes of which the root conists
-typedef struct rnode rnode;
-struct rnode
-{
-	rnode * next;
-	rnode * prev;
-	int name;
-	rnode * parent;
-	rnode * owner;
-};
 
 // The root to be constructed
 typedef struct root root;
-struct root
-{
-	int level;
-	int names;
-	rnode * list;
-	root * next;
-};
+
+// Nodes of which the root conists
+typedef struct rnode rnode;
 
 // The points in the box
 typedef struct point point;
-struct point
-{
-	int * coord;
-	int chi;
-	int min;
-	data * I;
-	point * next;
-	point * prev;
-	point ** updown;
-	point ** up;
-	point ** down;
-	rnode ** roots;
-};
 
 // Initiates basic data
 data * init_data();
@@ -68,15 +34,68 @@ point * init_point();
 // Creates a new point up in the direction of s.
 point * create_point(int s, point * p);
 
-// A nifty tool
+// Nifty tool
 int pos(int i);
 
 // Artin Laufer Nemethi algorithm
 void ALN(int s, point * p);
 
-// Delete a point from a linked list
+// Delete a point/rnode from a linked list
 void del_point(point * p);
+void del_rnode(rnode * p);
 
 // Are we still in the box if we move up i and down j?
 int is_in_box(point * p, int i, int j);
+
+// Processes root data from p up in s direction
+void process_roots(int s, point * p);
+
+// Search till we get the ultimate owner!
+rnode * ult_owner(rnode * r);
+
+// Create a new set of rnodes going up from p int the s direction
+void create_rnodes(point * p, point * u);
+
+// Create a new rnode in the root R at level i
+rnode * create_rnode(int i, point * p);
+
+struct root
+{
+	int level;
+	int names;
+	rnode * list;
+	root * next;
+};
+
+struct rnode
+{
+	rnode * next;
+	rnode * prev;
+	int name;
+	rnode * parent;
+	rnode * owner;
+};
+
+struct data
+{
+	int *m;
+	int *bad;
+	int *ZKbad;
+	root * R;
+};
+
+struct point
+{
+	int * coord;
+	int chi;
+	int min;
+	int newcomp;
+	data * I;
+	point * next;
+	point * prev;
+	point ** updown;
+	point ** up;
+	point ** down;
+	rnode ** roots;
+};
 #endif

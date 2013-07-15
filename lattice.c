@@ -3,14 +3,12 @@
 
 #include "aux.h"
 
-
-
-
 int main()
 {
 
 	data * I = init_data();
 	root * R = init_root();
+	I->R = R;
 	point * p = init_point(I, R);
 
 	int s,i,dummy,counter,neg,min;
@@ -27,17 +25,18 @@ int main()
 		printf(" %d", p->I->ZKbad[i]);
 	printf("\n");
 	
+
 	counter = 0;
 	neg = 0;
 	while(p != NULL)
 	{
-		if(++counter % 10000 == 0)
+		if(++counter % 1 == 0)
 		{
 			printf("we're at");
 			for(i=0; i<nu; i++)
 				printf(" %d", p->coord[p->I->bad[i]]);
-			printf("\nmin is %d, chi is %d\n", p->min, p->chi);
-			printf("\n");
+		//	printf("\nmin is %d, chi is %d\n", p->min, p->chi);
+			printf(" and p = %d\n", p);
 		}
 		if(p->chi<1)
 			neg++;
@@ -49,21 +48,20 @@ int main()
 				if(step == NULL)
 				{
 					step = create_point(s, p);
-					step->min = p->min + pos(p->chi - step->chi);
+
 					top->next = step;
 					step->prev = top;
 					step->next = NULL;
 					top = step;
 				}
-				else
-				{
 //******************************************************************************
 //	add interesting stuff here!
-dummy = p->min + pos(p->chi - step->chi);
-if(dummy < step->min)
-	step->min = dummy;
+				dummy = p->min + pos(p->chi - step->chi);
+				if(step->min > dummy)
+					step->min = dummy;
+
+				process_roots(s, p);
 //******************************************************************************
-				}
 			}
 		}
 		

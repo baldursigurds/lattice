@@ -10,7 +10,7 @@ data * init_data()
 {
 //******************************************************************************
 //Data 1
-/*******************************************************************************
+//******************************************************************************
 	int numbers[n][n] = {
 		{ -2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{1, -3, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -38,7 +38,7 @@ data * init_data()
 
 //*****************************************************************************/
 //Data 2
-//******************************************************************************
+/*******************************************************************************
 
 	int numbers[n][n] = {
 		{-1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,},
@@ -94,12 +94,7 @@ root * init_root()
 	R->level = 0;
 	R->names = 0;
 	R->next = NULL;
-	R->list = malloc(sizeof(rnode));
-	R->list->next = NULL;
-	R->list->prev = NULL;
-	R->list->name = R->names++;
-	R->list->parent = NULL;
-	R->list->owner = NULL;
+	R->list = NULL;
 }
 
 point * init_point(data*I, root*R)
@@ -110,6 +105,7 @@ point * init_point(data*I, root*R)
 	for(i=0; i<n; i++)
 		p->coord[i] = 0;
 	p->chi = 0;
+	p->newcomp = p->chi+1;
 	p->I = I;
 	p->next = NULL;
 	p->prev = NULL;
@@ -127,7 +123,7 @@ point * init_point(data*I, root*R)
 				p->updown[i*nu+j] = NULL;
 	}
 	p->roots = malloc(sizeof(rnode*));
-	p->roots[0] = R->list;
+	p->roots[0] = create_rnode(0, p);
 	return p;
 }
 
@@ -143,6 +139,11 @@ point * create_point(int s, point * p)
 	new->chi = p->chi;
 
 	ALN(s, new);
+	
+	new->min = p->min + pos(p->chi - new->chi);
+
+	new->roots = malloc(pos(new->chi+1)*sizeof(rnode*));
+	create_rnodes(p, new);
 
 	new->up = malloc(nu*sizeof(point*));
 	new->down = malloc(nu*sizeof(point*));
@@ -171,9 +172,8 @@ point * create_point(int s, point * p)
 			}
 			
 
-//	printf("created  %d  %d %d\n", new, new->coord[new->I->bad[0]],
-//		           new->coord[new->I->bad[1]]);
-//	printf("downs: %d %d\n", p->up[0], p->up[0]);
+	printf("created  %d  %d %d\n", new, new->coord[new->I->bad[0]],
+		           new->coord[new->I->bad[1]]);
 	return new;
 }
 
@@ -251,7 +251,7 @@ void del_point(point * p)
 	free(p->updown);
 	free(p->up);
 	free(p->down);
-//	free(p->roots);
+	free(p->roots);
 	if(p->next != NULL)
 		p->next->prev = p->prev;
 	if(p->prev != NULL)
@@ -259,10 +259,81 @@ void del_point(point * p)
 	free(p);
 }
 
-//point * find_point(int s, point * p)
-//{
-//	int i,j;
-//	for(i=0; i<nu; i++)
-//		for(j=0; j<nu; j++)
-//			
-//}
+void process_roots(int s, point * p)
+{
+	int i;
+	point * u = p->up[p->I->bad[s]];
+	printf("hello %d\n", s);
+	rnode * po;
+	rnode * uo;
+	for(i=0; i>=p->chi && i>u->newcomp; i--)
+	{
+		po = ult_owner(p->roots[i]);
+		uo = ult_owner(u->roots[i]);
+		if(po != uo)
+			po->owner = uo;
+	}
+	for(i=i; i>=p->chi && i>=u->chi; i--)
+	{
+		del_rnode(u->roots[-i]);
+		u->roots[-i] = p->roots[-i];
+		u->newcomp--;
+	}
+}
+
+void create_rnodes(point * p, point * u)
+{
+	int i;
+	u->newcomp = 0;
+	for(i=0; i>=p->chi && i>=u->chi; i--)
+		u->roots[-i] = ult_owner(p->roots[-i]);
+	u->newcomp = i;
+	for(i=i; i>=u->chi; i--)
+		u->roots[-i] = create_rnode(i, u);
+}
+
+void del_rnode(rnode * rn)
+{
+	if(rn->next != NULL)
+		rn->next->prev = rn->prev;
+	if(rn->prev != NULL)
+		rn->prev->next = rn->next;
+	free(rn);
+}
+
+rnode * ult_owner(rnode * r)
+{
+	while(r->owner != NULL)
+		r = r->owner;
+	return r;
+}
+
+rnode * create_rnode(int i, point * p)
+{
+	int j;
+	root * R = p->I->R;
+	rnode * new = malloc(sizeof(rnode));
+	while(R->level != i)
+	{
+		if(R->next = NULL)
+		{
+			R->next = malloc(sizeof(root));
+			R->next->level = R->next->level - 1;
+			R->next->names = 0;
+			R->next->list = NULL;
+			R->next->next = NULL;
+		}
+		R = R->next;
+	}
+	new->next = R->list;
+	new->prev = NULL;
+	if(R->list != NULL)
+		R->list->prev = new;
+	R->list = new;
+	new->name = R->names++;
+
+	if(i!=0)
+		new->parent = ult_owner(p->roots[-i+1]);
+	
+	new->owner = NULL;
+}
