@@ -9,6 +9,7 @@ int main()
 	data * I = init_data();
 	root * R = init_root();
 	I->R = R;
+	printf("a;lkdssfj %d\n", R->next);
 	point * p = init_point(I, R);
 
 	int s,i,dummy,counter,neg,min;
@@ -36,7 +37,7 @@ int main()
 			for(i=0; i<nu; i++)
 				printf(" %d", p->coord[p->I->bad[i]]);
 		//	printf("\nmin is %d, chi is %d\n", p->min, p->chi);
-			printf(" and p = %d\n", p);
+			printf(" and p = %p\n", p);
 		}
 		if(p->chi<1)
 			neg++;
@@ -67,7 +68,10 @@ int main()
 		
 		for(i=0; i<nu; i++)
 			if(p->down[i]!=NULL)
+			{
 				del_point(p->down[i]);
+				p->down[i] = NULL;
+			}
 
 		min = p->min;
 		p = p->next;
