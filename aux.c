@@ -142,7 +142,7 @@ point * create_point(int s, point * p)
 	
 	new->min = p->min + pos(p->chi - new->chi);
 
-	new->roots = malloc(pos(new->chi+1)*sizeof(rnode*));
+	new->roots = malloc(pos(-1*new->chi+1)*sizeof(rnode*));
 	create_rnodes(p, new);
 
 	new->up = malloc(nu*sizeof(point*));
@@ -268,6 +268,7 @@ void process_roots(int s, point * p)
 	rnode * uo;
 	for(i=0; i>=p->chi && i>u->newcomp; i--)
 	{
+	printf("hello %d %d %d\n", p->chi, i, p->roots[-i]);
 		po = ult_owner(p->roots[-i]);
 		uo = ult_owner(u->roots[-i]);
 		if(po != uo)
@@ -284,7 +285,9 @@ void process_roots(int s, point * p)
 void create_rnodes(point * p, point * u)
 {
 	int i;
-	u->newcomp = 0;
+	if(u->chi > 0)
+		return;
+	
 	for(i=0; i>=p->chi && i>=u->chi; i--)
 		u->roots[-i] = ult_owner(p->roots[-i]);
 	u->newcomp = i;

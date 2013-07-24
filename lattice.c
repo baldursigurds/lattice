@@ -9,7 +9,6 @@ int main()
 	data * I = init_data();
 	root * R = init_root();
 	I->R = R;
-	printf("a;lkdssfj %d\n", R->next);
 	point * p = init_point(I, R);
 
 	int s,i,dummy,counter,neg,min;
@@ -75,6 +74,23 @@ int main()
 
 		min = p->min;
 		p = p->next;
+	}
+	root * run = R;
+	rnode * rnrun;
+	while(run != NULL)
+	{
+		printf("Level %d:    %d\n", run->level, run->list);
+		rnrun = run->list;
+		while(rnrun != NULL)
+		{
+			if(rnrun->owner == NULL)
+			{
+				printf("Item no. %d.\n",
+						rnrun->name);
+			}
+			rnrun = rnrun->next;
+		}
+		run = run->next;
 	}
 	printf("\nmin: %d, neg: %d, total: %d.\n", min, neg, counter);
 }
