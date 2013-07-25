@@ -2,12 +2,12 @@
 #define __aux_h__
 
 //corresponding to data 1
-#define nu 2
-#define n 20
+//#define nu 2
+//#define n 20
 
 // corresponding to data 2
-//#define nu 3
-//#define n 27
+#define nu 3
+#define n 27
 
 
 // The basic set of data
@@ -57,7 +57,19 @@ rnode * ult_owner(rnode * r);
 void create_rnodes(point * p, point * u);
 
 // Create a new rnode in the root R at level i
-rnode * create_rnode(int i, point * p);
+void create_rnode(int i, point * p);
+
+// Create the new roots
+void finish_roots(point * p);
+
+// Create the roots
+void put_roots(point * p);
+
+// Print the root
+void print_root(root * R);
+
+// The main procedure
+void calculate_root(data * I);
 
 struct root
 {

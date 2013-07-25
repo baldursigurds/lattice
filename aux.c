@@ -10,7 +10,7 @@ data * init_data()
 {
 //******************************************************************************
 //Data 1
-//******************************************************************************
+/*******************************************************************************
 	int numbers[n][n] = {
 		{ -2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 		{1, -3, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -38,7 +38,7 @@ data * init_data()
 
 //*****************************************************************************/
 //Data 2
-/*******************************************************************************
+//******************************************************************************
 
 	int numbers[n][n] = {
 		{-1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,},
@@ -70,7 +70,50 @@ data * init_data()
 		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2}};
 	int BAD[nu] = {0,9,14};
 	int ZKBAD[nu] = {182,261,345};
+
+
 //*****************************************************************************/
+//Data 3
+/*******************************************************************************
+	int numbers[n][n] = {
+		{-2,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,}
+		{0,-3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,1,-2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,1,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,1,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{1,0,0,0,0,0,0,0,0,0,1,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-4,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,-2,1,0,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-4,1,0,0,0,0,0,0,0,}
+		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,0,0,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-7,1,0,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-2,1,0,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-1,1,1,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-3,0,0,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,-9,1,0,}
+		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-3,1,}
+		{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-3}};
+
+
+	int BAD[nu] = {0, 2, 16, 27};
+	int ZKBAD[nu] = {};
+
+// ****************************************************************************/
 
 	int i,j;
 	data * I = malloc(sizeof(data));
@@ -122,8 +165,8 @@ point * init_point(data*I, root*R)
 			else
 				p->updown[i*nu+j] = NULL;
 	}
-	p->roots = malloc(sizeof(rnode*));
-	p->roots[0] = create_rnode(0, p);
+	p->roots = (rnode **) malloc(sizeof(rnode*));
+	create_rnode(0, p);
 	return p;
 }
 
@@ -199,6 +242,8 @@ void ALN(int s, point * p)
 	int i, j;
 	int d;
 	int Bad[n];
+	int dummy1 = 1;
+	int dummy2 = 1;
 
 	for(i=0; i<n; i++)
 		Bad[i] = 0;
@@ -206,8 +251,6 @@ void ALN(int s, point * p)
 	for(i=0; i<nu; i++)
 		Bad[p->I->bad[i]] = 1;
 
-	int dummy1 = 1;
-	int dummy2 = 1;
 
 
 	// The first step in the sequence (the one that provides possible
@@ -266,19 +309,14 @@ void process_roots(int s, point * p)
 	point * u = p->up[s];
 	rnode * po;
 	rnode * uo;
-	for(i=0; i>=p->chi && i>u->newcomp; i--)
+	for(i=0; i>=p->chi && i>=u->chi; i--)
 	{
-	printf("hello %d %d %d\n", p->chi, i, p->roots[-i]);
+		if(u->roots[-i] == NULL)
+			u->roots[-i] = ult_owner(p->roots[-i]);
 		po = ult_owner(p->roots[-i]);
 		uo = ult_owner(u->roots[-i]);
 		if(po != uo)
 			po->owner = uo;
-	}
-	for(i=i; i>=p->chi && i>=u->chi; i--)
-	{
-		del_rnode(u->roots[-i]);
-		u->roots[-i] = p->roots[-i];
-		u->newcomp--;
 	}
 }
 
@@ -292,7 +330,13 @@ void create_rnodes(point * p, point * u)
 		u->roots[-i] = ult_owner(p->roots[-i]);
 	u->newcomp = i;
 	for(i=i; i>=u->chi; i--)
-		u->roots[-i] = create_rnode(i, u);
+		create_rnode(i, u);
+	
+//	printf("Creatad rnodes for %d-%d, they are:",
+//			u->coord[u->I->bad[0]], u->coord[u->I->bad[1]]);
+//	for(i=0; i>=u->chi; i--)
+//		printf(" %d", u->roots[-i]);
+//	printf("\n");
 }
 
 void del_rnode(rnode * rn)
@@ -306,12 +350,17 @@ void del_rnode(rnode * rn)
 
 rnode * ult_owner(rnode * r)
 {
+	if(r == NULL)
+	{
+		printf("Can not compute ult_owner(NULL).\n");
+		return NULL;
+	}
 	while(r->owner != NULL)
 		r = r->owner;
 	return r;
 }
 
-rnode * create_rnode(int i, point * p)
+void create_rnode(int i, point * p)
 {
 	int j;
 	root * R = p->I->R;
@@ -320,6 +369,7 @@ rnode * create_rnode(int i, point * p)
 	{
 		if(R->next == NULL)
 		{
+			printf("New level: %d.\n", R->level - 1);
 			R->next = malloc(sizeof(root));
 			R->next->level = R->level - 1;
 			R->next->names = 0;
@@ -337,6 +387,151 @@ rnode * create_rnode(int i, point * p)
 
 	if(i!=0)
 		new->parent = ult_owner(p->roots[-i-1]);
+	else
+		new->parent = NULL;
 	
 	new->owner = NULL;
+	p->roots[-i] = new;
+}
+
+void put_roots(point * p)
+{
+	int i,j;
+	rnode * r1;
+	rnode * r2;
+	for(i=0; i>=p->chi; i--)
+	{
+		p->roots[-i] = NULL;
+		for(j=0; j<nu; j++)
+		{
+			if(p->coord[p->I->bad[j]] && p->down[j]->chi >= i)
+			{
+				if(p->roots[-i] == NULL)
+				{
+					printf("ping\n");
+					p->roots[-i] = ult_owner(p->down[j]->roots[-i]);
+					printf("pong\n");
+				}
+				if(p->roots[-i] != NULL)
+				{
+					printf("ping\n");
+					r1 = ult_owner(p->roots[-i]);
+					r2 = ult_owner(p->down[j]->roots[-i]);
+					printf("pong\n");
+					if(r1 != r2)
+						r2->owner = r1;
+				}
+			}
+		}
+		if(p->roots[-i] == NULL)
+			create_rnode(i, p);
+	}
+}
+
+void finish_roots(point * p)
+{
+	int i;
+	for(i=0; i>=p->chi; i--)
+		if(p->roots[-i] == NULL)
+			create_rnode(i, p);
+}
+
+void print_root(root * R)
+{
+	root * run = R;
+	rnode * rnrun;
+	int eu = -1;
+	while(run != NULL)
+	{
+		printf("\nLevel %d:\n", run->level);
+		rnrun = run->list;
+		while(rnrun != NULL)
+		{
+			if(rnrun->owner == NULL)
+			{
+				printf("Item no. %d", rnrun->name);
+				if(rnrun->parent == NULL)
+					printf(" has no parent.\n");
+				else
+					printf(" has parent %d.\n", ult_owner(rnrun->parent)->name);
+				eu++;
+			}
+			rnrun = rnrun->next;
+		}
+		run = run->next;
+	}
+	printf("\neu: %d\n", eu);
+}
+
+
+void calculate_root(data * I)
+{
+	root * R = init_root();
+	I->R = R;
+	point * p = init_point(I, R);
+
+	int s,i,dummy,counter,neg,min;
+
+	point * step;
+	point * top = p;
+
+
+	printf("bads:");
+	for(i=0; i<nu; i++)
+		printf(" %d", p->I->bad[i]);
+	printf("  bad values:");
+	for(i=0; i<nu; i++)
+		printf(" %d", p->I->ZKbad[i]);
+	printf("\n");
+	
+
+	counter = 0;
+	neg = 0;
+	while(p != NULL)
+	{
+		if(counter++ % 100000 == 0)
+		{
+			printf("we're at");
+			for(i=0; i<nu; i++)
+				printf(" %d", p->coord[p->I->bad[i]]);
+			printf(", min is %d, chi is %d", p->min, p->chi);
+			printf(" and p = %p\n", p);
+		}
+		if(counter % 1000000 == 0)
+			printf("%d million points down!\n", counter/1000000);
+		if(p->chi<1)
+			neg++;
+		for(s=0; s<nu; s++)
+		{
+			if(p->coord[I->bad[s]] < I->ZKbad[s])
+			{
+				step = p->up[s];
+				if(step == NULL)
+				{
+					step = create_point(s, p);
+
+					top->next = step;
+					step->prev = top;
+					step->next = NULL;
+					top = step;
+				}
+				dummy = p->min + pos(p->chi - step->chi);
+				if(step->min > dummy)
+					step->min = dummy;
+
+				process_roots(s, p);
+			}
+		}
+		finish_roots(p);
+		
+		for(i=0; i<nu; i++)
+			if(p->down[i]!=NULL)
+			{
+				del_point(p->down[i]);
+				p->down[i] = NULL;
+			}
+
+		min = p->min;
+		p = p->next;
+	}
 }
