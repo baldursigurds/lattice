@@ -8,6 +8,7 @@ int main()
 
 	data * I = init_data();
 	calculate_root(I);
-	print_root(I->R);
+	print_data(I);
+	del_data(I);
 }
 

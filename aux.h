@@ -6,8 +6,12 @@
 //#define n 20
 
 // corresponding to data 2
-#define nu 3
-#define n 27
+//#define nu 3
+//#define n 27
+
+// corresponding to data 3
+#define nu 2
+#define n 10
 
 
 // The basic set of data
@@ -66,10 +70,13 @@ void finish_roots(point * p);
 void put_roots(point * p);
 
 // Print the root
-void print_root(root * R);
+void print_data(data * I);
 
 // The main procedure
 void calculate_root(data * I);
+
+// Clean up
+void del_data(data * I);
 
 struct root
 {
@@ -94,6 +101,7 @@ struct data
 	int *bad;
 	int *ZKbad;
 	root * R;
+	int min;
 };
 
 struct point
