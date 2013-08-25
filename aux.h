@@ -10,8 +10,8 @@
 //#define n 27
 
 // corresponding to data 3
-#define nu 2
-#define n 10
+//#define nu 2
+//#define n 10
 
 
 // The basic set of data
@@ -97,6 +97,8 @@ struct rnode
 
 struct data
 {
+	int n;
+	int nu;
 	int *m;
 	int *bad;
 	int *ZKbad;
