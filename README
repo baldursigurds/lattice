@@ -1,6 +1,6 @@
 LATTICE
 
-This is a program which calculates the zeroeth lattice cohomology of a
+This is a program which calculates the zeroth lattice cohomology of a
 singularity and the root, as well as the rank of the minimal path cohomology.
 It uses Tamás' reduction theorem to reduce to a smaller dimensional case. After
 that, it's a simple width first search algorithm to locate components.

@@ -5,10 +5,9 @@
 #include "if.h"
 
 
-void main_loop(FILE *f)
+void main_loop(FILE *f, data *I)
 {
 	char c;
-	data * I = init_data();
 	while(1)
 	{
 		if(f == stdin)
@@ -25,13 +24,16 @@ void main_loop(FILE *f)
 			case 'p':
 				print_comm(I, f);
 				break;
+			case 'f':
+				flush_root(I);
+				break;
 			case 'q':
 				return;
 			case EOF:
 				printf("End of file.\n");
-				del_data(I);
 				return;
 			case '\n':
+			case '!':
 				break;
 			default:
 				printf("Unknown command %c.\n", c);
@@ -40,11 +42,9 @@ void main_loop(FILE *f)
 			c = getc(f);
 		if(c == EOF)
 		{
-			del_data(I);
 			return;
 		}
 	}
-	del_data(I);
 }
 
 void input_data(data * I, FILE *f)
@@ -128,6 +128,18 @@ void print_comm(data * I, FILE *f)
 		case 'v':
 			printf("nu = %d.\n", I->nu);
 			break;
+		case 'b':
+			printf("Bad vertices:");
+			for(i=0; i<I->nu; i++)
+				printf(" %d", I->bad[i]);
+			printf(".\n");
+			break;
+		case 'K':
+			printf("Canonical divisor on bad vertices:");
+			for(i=0; i<I->nu; i++)
+				printf(" %d", I->ZKbad[i]);
+			printf(".\n");
+			break;
 		case 'I':
 			for(i=0; i<I->n; i++)
 			{
@@ -137,7 +149,6 @@ void print_comm(data * I, FILE *f)
 			}
 			break;
 		case 'r':
-			printf("asdf\n");
 			print_data(I);
 	}
 }

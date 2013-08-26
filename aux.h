@@ -78,6 +78,9 @@ void calculate_root(data * I);
 // Clean up
 void del_data(data * I);
 
+// Flush out the data
+void flush_root(data * I);
+
 struct root
 {
 	int level;

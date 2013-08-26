@@ -1,7 +1,7 @@
 #ifndef __if_h__
 #define __if_h__
 
-void main_loop(FILE *f);
+void main_loop(FILE *f, data *I);
 
 void input_data(data * I, FILE *f);
 

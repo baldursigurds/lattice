@@ -425,6 +425,11 @@ void finish_roots(point * p)
 
 void print_data(data * I)
 {
+	if(I->R == NULL)
+	{
+		printf("There is no root!\n");
+		return;
+	}
 	root * run = I->R;
 	rnode * rnrun;
 	int eu = -1;
@@ -540,6 +545,12 @@ void del_data(data * I)
 	free(I->m);
 	free(I->bad);
 	free(I->ZKbad);
+	flush_root(I);
+	free(I);
+}
+
+void flush_root(data * I)
+{
 	root * R = I->R;
 	root * R1;
 	rnode * rn;
@@ -557,5 +568,6 @@ void del_data(data * I)
 		free(R);
 		R = R1;
 	}
-	free(I);
+	I->R = NULL;
+	I->min = 0;
 }

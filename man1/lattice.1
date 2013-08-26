@@ -1,0 +1,68 @@
+.TH lattice 1 "August 2013" LATTICE LATTICE
+.SH NAME
+lattice - a computational tool for lattice cohomology
+.SH SYNOPSIS
+lattice [file1 [file2 ..] ]
+.SH DESCRIPTION
+lattice can compute the root of the zeroth lattice homology of a singularity
+given the intersection form of the link, a list of bad vertices and the
+values of the canonical divisor on those vertices. The arguments should be
+names of files which the program parses. The files should contain a list of
+commands which the program executes. Next the user is provided with a prompt
+to input more commands. Commands are given by a single letter
+in the beginning of lines. The rest of the line may contain parameters, or it is
+ignored if it contains more than the expected parameters.
+.SH COMMANDS
+.SS
+i
+Input data. The character following i should be one of the following:
+
+.TP
+n
+followed by an integer to enter n, the number of vertices.
+
+.TP
+v
+followed by an integer to enter nu, the number of bad vertices.
+
+.TP
+I
+followed by n^2 integers to enter I, the intersection matrix. This should be
+preceded by entering n.
+
+.TP
+b
+followed by nu integers to specify which vertices are bad. This should be
+preceded by entering nu via v.
+
+.TP
+K
+followed by nu integers to specify the values of the anti-canonical divisor Z_K
+on the bad vertices. This should be preceded by entering nu via v.
+
+.SS
+p
+Print data. The p should be followed by one of the characters nvIbK to print
+data obtained via the input command or r to print the root.
+
+.SS
+c
+Calculate root from data provided.
+
+.SS
+f
+Flush data, that is, forget the root if it has been calculated.
+
+.SS
+q
+Quit the program.
+
+.SH EXAMPLES
+The files data1, data2 and data3 are examples which calculate the roots of
+one topological type each.
+
+.SH HISTORY & ACKNOWLEDGEMENTS
+The main theoretical ingredient here is Tamsás László's reduction theorem
+and a generalized form of Laufer's computation sequence.
+A "nice enough" version of this program was made by Baldur Sigurdsson
+<bas4@hi.is> in 2013.
