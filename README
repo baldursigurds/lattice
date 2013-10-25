@@ -5,5 +5,25 @@ singularity and the root, as well as the rank of the minimal path cohomology.
 It uses Tamás' reduction theorem to reduce to a smaller dimensional case. After
 that, it's a simple width first search algorithm to locate components.
 
+HOW TO RUN
+
+To run the program, download the zip file found on the project's homepage and
+extract it to a local directory. In the directory simply run the command make,
+which produces the executable. This amounts to the following commands being run
+in the directory containing the .zip file
+
+unzip baldursigurds-lattice-NUMBER.zip
+cd baldursigurds-lattice-NUMBER
+make
+
+where NUMBER is the number in the title of the file. To try out the program, in
+the same directory, run e.g.
+
+./lattice data1
+
+The files data1, data2 and data3 provide the necessary data for one topological
+type each. The program can also be run without arguments for manual input. For
+further information on how to enter and run data, consult the manual.
+
 Baldur Sigurðsson
-bas4@hi.is
+baldur at renyi dot hu
