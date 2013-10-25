@@ -23,7 +23,10 @@ the same directory, run e.g.
 
 The files data1, data2 and data3 provide the necessary data for one topological
 type each. The program can also be run without arguments for manual input. For
-further information on how to enter and run data, consult the manual.
+further information on how to enter and run data, consult the manual, which
+can be found in the man directory, as well as online
+
+http://renyi.hu/~baldur/lattice.html
 
 Baldur Sigurðsson
 baldur at renyi dot hu
