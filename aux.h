@@ -81,6 +81,10 @@ void del_data(data * I);
 // Flush out the data
 void flush_root(data * I);
 
+// Arithmetic functions
+int element(int i, int s);
+int intersection(int a, int b, int nup);
+
 struct root
 {
 	int level;
@@ -102,6 +106,7 @@ struct data
 {
 	int n;
 	int nu;
+	int nup;
 	int *m;
 	int *bad;
 	int *ZKbad;
@@ -115,6 +120,7 @@ struct point
 	int chi;
 	int min;
 	int newcomp;
+	int processed;
 	data * I;
 	point * next;
 	point * prev;

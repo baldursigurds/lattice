@@ -35,6 +35,10 @@ void main_loop(FILE *f, data *I)
 			case '\n':
 			case '!':
 				break;
+			case '?':
+				c = getc(f);
+				help(c);
+				break;
 			default:
 				printf("Unknown command %c.\n", c);
 		}
@@ -44,6 +48,45 @@ void main_loop(FILE *f, data *I)
 		{
 			return;
 		}
+	}
+}
+
+void help(char c)
+{
+	switch(c)
+	{
+		case 'c':
+			printf("The command c calculates the root.\n");
+			break;
+		case 'i':
+			printf("To input data, use:\n");
+			printf("in  to enter the number of vertices,\n");
+			printf("iv  to enter the number of bad vertices,\n");
+			printf("ib  to enter the bad vertices,\n");
+			printf("iI  to enter the intersection matrix,\n");
+			printf("iK  to enter the canonical divisor on the bad vertices,\n");
+			break;
+		case 'p':
+			printf("The command p prints the root.\n");
+			break;
+		case 'f':
+			printf("The command f flushes the root.\n");
+			break;
+		case 'q':
+			printf("The command q quits the program.\n");
+			break;
+		case '!':
+			printf("Lines starting with a '!' are ignored.\n");
+			break;
+		default:
+			printf("Available commands:\n");
+			printf("i  input data\n");
+			printf("c  calculate root\n");
+			printf("p  print root\n");
+			printf("f  flush root\n");
+			printf("q  quit\n");
+			printf("Lines starting with a '!' are ignored.\n");
+			break;
 	}
 }
 
@@ -58,6 +101,7 @@ void input_data(data * I, FILE *f)
 			return;
 		case 'v':
 			fscanf(f, "%d", &I->nu);
+			I->nup = 1 << I->nu;
 			if(I->ZKbad != NULL)
 				free(I->ZKbad);
 			I->ZKbad = (int*) malloc(I->nu*sizeof(int));

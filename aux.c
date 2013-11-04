@@ -12,6 +12,7 @@ data * init_data()
 	data * I = malloc(sizeof(data));
 	I->n = 0;
 	I->nu = 0;
+	I->nup = 1;
 	I->bad = NULL;
 	I->ZKbad = NULL;
 	I->m = NULL;
@@ -39,36 +40,53 @@ point * init_point(data*I, root*R)
 	p->chi = 0;
 	p->min = 0;
 	p->newcomp = p->chi+1;
+	p->processed = 1;
 	p->I = I;
 	p->next = NULL;
 	p->prev = NULL;
-	p->updown = malloc(I->nu*I->nu*sizeof(point*));
-	p->up = malloc(I->nu*sizeof(point*));
+	p->updown = malloc(I->nup*I->nup*sizeof(point*));
+	p->up = malloc(I->nup*sizeof(point*));
 	p->down = malloc(I->nu*sizeof(point*));
 	for(i=0; i<I->nu; i++)
 	{
-		p->up[i] = NULL;
 		p->down[i] = NULL;
-		for(j=0; j<I->nu; j++)
-			if(i==j)
-				p->updown[i*I->nu+j] = p;
-			else
-				p->updown[i*I->nu+j] = NULL;
 	}
+	for(i=0; i<I->nup; i++)
+	{
+		p->up[i] = NULL;
+		for(j=0; j<I->nup; j++)
+		{
+			p->updown[I->nup*i + j] = NULL;
+		}
+		p->updown[I->nup*i + i] = p;
+	}
+	p->up[0] = p;
 	p->roots = (rnode **) malloc(sizeof(rnode*));
 	create_rnode(0, p);
 	return p;
 }
 
-
 point * create_point(int s, point * p)
 {
-	int i,j;
+	int i,j,k,high;
+	int nup = p->I->nup;
 	point * new = malloc(sizeof(point));
 	new->coord = malloc(p->I->n*sizeof(int));
+	new->processed = 0;
 	new->I = p->I;
 	for(i=0; i<p->I->n; i++)
 		new->coord[i] = p->coord[i];
+	high = 0;
+	while(1)
+	{
+		if(s/(1<<high) == 1)
+			break;
+		else
+			if(s^(1<<high))
+				new->coord[high]++;
+		high++;
+	} 
+
 	new->chi = p->chi;
 
 	ALN(s, new);
@@ -78,33 +96,96 @@ point * create_point(int s, point * p)
 	new->roots = malloc(pos(-1*new->chi+1)*sizeof(rnode*));
 	create_rnodes(p, new);
 
-	new->up = malloc(p->I->nu*sizeof(point*));
+	new->up = malloc(p->I->nup*sizeof(point*));
 	new->down = malloc(p->I->nu*sizeof(point*));
-	new->updown = malloc(p->I->nu*p->I->nu*sizeof(point*));
+	new->updown = malloc(p->I->nup*p->I->nup*sizeof(point*));
+
+	printf("melding: s = %d,  (1<<high) = %d\n", s, (1<<high));
+	point * below = p->updown[nup*s + (1<<high)];
+	if(below == NULL)
+		printf("something went horribly wrong with the pointer 'below'.\n");
 	
-	for(i=0; i<p->I->nu; i++)
+	// The following enters the new point into the up and updown data for
+	// all points which might point at it.
+	// First set everything in new to NULL except for the trivial ones
+	for(i=0; i<nup; i++)
 	{
 		new->up[i] = NULL;
-		if(new->coord[new->I->bad[i]] != 0)
-		{
-			new->down[i] = p->updown[p->I->nu*s+i];
-			new->down[i]->up[i] = new;
-			
-		}
+		for(j=0; j<nup; j++)
+			new->updown[p->I->nup*i+j] = NULL;
+		new->updown[p->I->nup*i+i] = p;
+	}
+	new->up[0] = p;
+	// This is for new->down
+	for(i=0; i<p->I->nu; i++)
+	{
+		if(i == high)
+			new->down[i] = below;
 		else
-			new->down[i] = NULL;
-		new->updown[p->I->nu*i+i] = new;
+			new->down[i] = below->updown[(nup<<high) + (1<<i)];
+	}
+	// This configures up and updown data pointing at or from the new point
+	point * dummy;
+//	// i is a step down from the new point
+//	for(i=0; i<nup; i++)
+//	{
+//		dummy = p->updown[p->I->nup*s + i];
+//		if(dummy == NULL)
+//			break;
+//		// up data pointing at the new point:
+//		dummy->up[i] = new;
+//
+//		
+//		// j is a step up from the new point, if it can be taken as a step
+//		// up from i below
+//		for(j=0; j<p->I->nup; j++)
+//		{
+//			if(i^j)
+//				break;
+//			// any up data pointing from the new point is configured here
+//			if(dummy->up[i+j] != NULL)
+//				new->up[j] = dummy->up[i+j];
+//			for(k=0; k<nup; k++)
+//				if(dummy->updown[nup*(i+j)+k] != NULL)
+//				{
+//					// any updown data pointing at or from the new point
+//					// is configured here
+//					new->updown[nup*j+k] = dummy->updown[nup*(i+j)+k];
+//					new->updown[nup*j+k]->updown[nup*k+j] = new;
+//				}
+//		}
+//	}
+//	The following sets the updown data
+//
+//	EMERGENCY! Find a way to put in _all_ new updown data, assuming all data
+//	was there in the previous setting!
+	int dstep;
+	new->updown[0] = new;
+	for(i=1; i<nup; i++)
+	{
+		dstep = 1;
+		while(dstep^i)
+			dstep <<= 1;
+	}
+
+
+
+		dstep = 0;
+		while(new->down[dstep] == NULL || (i^(1<<dstep)) && dstep < p->I->nu)
+		{
+			++dstep;
+			printf("asd;lfkj %d\n", dstep);
+		}
+
+		for(j=0; j<nup; j++)
+		{
+			dummy = new->down[dstep]->updown[nup*(i+(1<<dstep))+j];
+			new->updown[nup*i + j] = dummy;
+			if(dummy != NULL)
+				dummy->updown[nup*j + i] = new;
+		}
 	}
 	
-	for(i=0; i<p->I->nu; i++)
-		for(j=0; j<p->I->nu; j++)
-			if(is_in_box(new, i, j))
-			{
-				new->updown[p->I->nu*i+j] = p->updown[p->I->nu*s+j]->up[i];
-				if(new->updown[p->I->nu*i+j] != NULL)
-					new->updown[p->I->nu*i+j]->updown[p->I->nu*j+i] = new;
-			}
-			
 
 //	printf("created  %d  %d %d\n", new, new->coord[new->I->bad[0]],
 //		           new->coord[new->I->bad[1]]);
@@ -208,6 +289,7 @@ void process_roots(int s, point * p)
 		if(po != uo)
 			po->owner = uo;
 	}
+	p->processed = 1;
 }
 
 void create_rnodes(point * p, point * u)
@@ -385,23 +467,30 @@ void calculate_root(data * I)
 
 	counter = 0;
 	neg = 0;
+	int toobig;
 	while(p != NULL)
 	{
-		if(counter++ % 100000 == 0)
-		{
+//		if(counter++ % 100000 == 0)
+//		{
 			printf("we're at");
 			for(i=0; i<I->nu; i++)
 				printf(" %d", p->coord[p->I->bad[i]]);
 			printf(", min is %d, chi is %d", p->min, p->chi);
 			printf(" and p = %p\n", p);
-		}
-		if(counter % 1000000 == 0)
-			printf("%d million points down!\n", counter/1000000);
+//		}
+//		if(counter % 1000000 == 0)
+//			printf("%d million points down!\n", counter/1000000);
 		if(p->chi<1)
 			neg++;
-		for(s=0; s<I->nu; s++)
+		// The following constructs all relevant points in the cube with
+		// smallest vertex p
+		for(s=1; s<I->nup; s++)
 		{
-			if(p->coord[I->bad[s]] < I->ZKbad[s])
+			toobig = 0;
+			for(i=0; i<I->nu; i++)
+				if((p->coord[I->bad[i]] > I->ZKbad[i]) && (s^(1 << i)))
+					toobig = 1;
+			if(!toobig)
 			{
 				step = p->up[s];
 				if(step == NULL)
@@ -412,15 +501,24 @@ void calculate_root(data * I)
 					step->prev = top;
 					step->next = NULL;
 					top = step;
+					printf("s = %d\n", s);
+					printf("added the point ");
+					for(i=0; i<I->nu; i++)
+						printf(" %d", step->coord[p->I->bad[i]]);
+					printf("\n");
 				}
-				dummy = p->min + pos(p->chi - step->chi);
-				if(step->min > dummy)
-					step->min = dummy;
-
-				process_roots(s, p);
 			}
 		}
-		finish_roots(p);
+		for(s=1; s<I->nup; s*=2)
+		{
+			step = p->up[s];
+			dummy = p->min + pos(p->chi - step->chi);
+			if(step->min > dummy)
+				step->min = dummy;
+
+			process_roots(s, p);
+			finish_roots(p);
+		}
 		
 		for(i=0; i<I->nu; i++)
 			if(p->down[i]!=NULL)
