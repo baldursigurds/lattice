@@ -120,13 +120,13 @@ struct point
 	int chi;
 	int min;
 	int newcomp;
-	int processed;
+	int level;
+	int floor;
+	int ceil;
 	data * I;
 	point * next;
 	point * prev;
 	point ** updown;
-	point ** up;
-	point ** down;
 	rnode ** roots;
 };
 #endif
