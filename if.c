@@ -27,6 +27,9 @@ void main_loop(FILE *f, data *I)
 			case 'f':
 				flush_root(I);
 				break;
+			case 'w':
+				get_filename(I);
+				break;
 			case 'q':
 				return;
 			case EOF:
@@ -157,6 +160,9 @@ void input_data(data * I, FILE *f)
 			for(i=0; i<I->nu; i++)
 				printf(" %d", I->ZKbad[i]);
 			printf(".\n");
+			break;
+		case 'f':
+			fscanf(f, "%d", &(I->format));
 			break;
 	}
 }

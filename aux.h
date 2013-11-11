@@ -52,7 +52,7 @@ void del_rnode(rnode * p);
 int is_in_box(point * p, int i, int j);
 
 // Processes root data from p up in s direction
-void process_roots(int s, point * p);
+void process_roots(point * p);
 
 // Search till we get the ultimate owner!
 rnode * ult_owner(rnode * r);
@@ -88,6 +88,7 @@ int intersection(int a, int b, int nup);
 struct root
 {
 	int level;
+	int Euler;
 	int names;
 	rnode * list;
 	root * next;
@@ -111,7 +112,10 @@ struct data
 	int *bad;
 	int *ZKbad;
 	root * R;
+	root * DR;
 	int min;
+	int format;
+	FILE * out;
 };
 
 struct point

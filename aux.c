@@ -18,6 +18,8 @@ data * init_data()
 	I->m = NULL;
 	I->min = 0;
 	I->R = NULL;
+	I->format = 0;
+	I->out = NULL;
 	return I;
 }
 
@@ -25,6 +27,7 @@ root * init_root()
 {
 	root * R = malloc(sizeof(root));
 	R->level = 0;
+	R->Euler = 0;
 	R->names = 0;
 	R->next = NULL;
 	R->list = NULL;
@@ -44,6 +47,8 @@ point * init_point(data*I, root*R)
 	p->I = I;
 	p->next = NULL;
 	p->prev = NULL;
+	p->floor = I->nup - 1;
+	p->ceil = 0;
 	p->updown = malloc(I->nup*I->nup*sizeof(point*));
 	for(i=0; i<I->nup; i++)
 	{
@@ -72,14 +77,12 @@ point * create_point(int s, point * p)
 	while( (s & (1<<sm)) == 0)
 		sm++;
 	point * below = p->updown[nup*(s - (1<<sm))];
-	printf("sm = %d, s = %d, below = %p\n", sm, s, below);
 
 	new->level = 0;
 
 	for(i=0; i<new->I->n; i++)
 	{
 		new->coord[i] = below->coord[i];
-		new->level += new->coord[new->I->bad[i]];
 	}
 
 	new->chi = below->chi;
@@ -92,84 +95,57 @@ point * create_point(int s, point * p)
 	{
 		if(new->coord[new->I->bad[i]] == 0)
 			new->floor += (1<<i);
-		if(new->coord[new->I->bad[i]] == new->I->ZKbad[new->I->bad[i]])
+		if(new->coord[new->I->bad[i]] == new->I->ZKbad[i])
 			new->ceil += (1<<i);
+		new->level += new->coord[new->I->bad[i]];
 	}
 
 	// This configures updown data pointing at or from the new point
+	
 	new->updown = malloc(p->I->nup*p->I->nup*sizeof(point*));
 	point * dummy;
-//	for(i=1; i<nup; i++)
-//	{
-//		new->updown[0 + i] = p->updown[nup*s + i];
-//		if(new->updown[0 + i])
-//			new->updown[0 + i]->updown[nup*i + 0] = new;
-//		printf("new->updown[0 + %d] = %p\n", i, new->updown[0 + i]);
-//	}
-	int ip, jp;
-	p->updown[nup*s] = new;
-
+	int ip, jp, c;
 
 	for(i=0; i<nup; i++)
+	{
+		new->updown[nup*i + i] = new;
 		for(j=0; j<nup; j++)
-			new->updown[j*nup + i] = NULL;
-	int c;
-	for(c=0; c < p->I->nu; c++)
-	{
-		for(i=0; i<nup; i++)
 		{
-			new->updown[nup*i + i] = new;
-			for(j=0; j<nup; j++)
+			ip = i - (i&j);
+			jp = j - (i&j);
+			if((ip&new->floor) || (jp&new->ceil) || (jp==nup-1))
 			{
-				ip = i - i&j;
-				jp = j - i&j;
-				if( !(ip&new->floor) && !(jp&new->ceil)
-				                     && !(j&(1<<c))
-									 && !((1<<c)&new->floor)
-				                     && i != j)
-					//				 && p->updown[nup*s+(1<<c)] != NULL)
-				{
-		//		printf("hello %d %d %d\n", c, i, j);
-					new->updown[nup*j + i]
-						= p->updown[nup*s          + (1<<c)]
-						   ->updown[nup*(jp+(1<<c)) +      ip];
-				}
-				if(new->updown[nup*j + i] != NULL)
-					new->updown[nup*j + i]->updown[nup*i+j] = new;
+				new->updown[nup*j + i] = NULL;
+				continue;
 			}
+			if(i == j)
+			{
+				new->updown[nup*j + i] = new;
+				continue;
+			}
+
+			c = 0;
+			while((1<<c) & (jp | new->floor))
+				c++;
+			if(c == new->I->nu)
+			{
+				new->updown[nup*j + i] = NULL;
+				continue;
+			}
+
+			new->updown[nup*j + i]
+				= p->updown[nup*s           + (1<<c)]
+				   ->updown[nup*(jp+(1<<c)) +     ip];
+			if(new->updown[nup*j + i] != NULL)
+				new->updown[nup*j + i]->updown[nup*i+j] = new;
 		}
 	}
 
 
-/*
 
-	for(i=0; i<nup; i++)
-	{
-		new->updown[i] = p->updown[nup*s + i];
+//	printf("created  %d %d -- %p -- level = %d\n", new->coord[new->I->bad[0]],
+//		           new->coord[new->I->bad[1]], new, new->level);
 
-		for(j=1; j<nup; j++)
-		{
-			ip = i - i&j;
-			jp = j - i&j;
-			if(!(ip&new->floor) && !(jp&new->ceil))
-			{
-				printf("hello\n");
-				new->updown[nup*j+i] = new->updown[0+ip]->updown[nup*jp+0];
-				if(new->updown[nup*jp + ip])
-					new->updown[nup*jp+ip]->updown[nup*i+j] = new;
-			}
-			else
-				new->updown[nup*j+i] = NULL;
-		}
-	}
-	*/
-	
-	new->min = p->min + pos(p->chi - new->chi);
-
-	new->roots = malloc(pos(-1*new->chi+1)*sizeof(rnode*));
-	create_rnodes(p, new);
-	printf("created  %d %d -- %p\n", new->coord[new->I->bad[0]],
-		           new->coord[new->I->bad[1]], new);
 	return new;
 }
 
@@ -251,40 +227,39 @@ void del_point(point * p)
 	free(p);
 }
 
-void process_roots(int s, point * p)
+void process_roots(point * p)
 {
-	int i;
-	point * u = p->updown[p->I->nup*s];
-	rnode * po;
-	rnode * uo;
-	for(i=0; i>=p->chi && i>=u->chi; i--)
-	{
-		if(u->roots[-i] == NULL)
-			u->roots[-i] = ult_owner(p->roots[-i]);
-		po = ult_owner(p->roots[-i]);
-		uo = ult_owner(u->roots[-i]);
-		if(po != uo)
-			po->owner = uo;
-	}
-}
-
-void create_rnodes(point * p, point * u)
-{
-	int i;
-	if(u->chi > 0)
+	if(p->chi > 0)
 		return;
-	
-	for(i=0; i>=p->chi && i>=u->chi; i--)
-		u->roots[-i] = ult_owner(p->roots[-i]);
-	u->newcomp = i;
-	for(i=i; i>=u->chi; i--)
-		create_rnode(i, u);
-	
-//	printf("Creatad rnodes for %d-%d, they are:",
-//			u->coord[u->I->bad[0]], u->coord[u->I->bad[1]]);
-//	for(i=0; i>=u->chi; i--)
-//		printf(" %d", u->roots[-i]);
-//	printf("\n");
+	int i,j;
+	p->roots = (rnode**) malloc((-p->chi+1)*sizeof(rnode*));
+	point * d;
+	rnode * dow;
+	for(i=0; i>=p->chi; i--)
+	{
+		p->roots[-i] = NULL;
+		for(j=0; j<p->I->nu; j++)
+		{
+			if(p->floor & (1<<j))
+				continue;
+			d = p->updown[1<<j];
+			if(d->chi <= i)
+			{
+				dow = ult_owner(d->roots[-i]);
+				if(p->roots[-i] == NULL)
+				{
+					p->roots[-i] = dow;
+				}
+				else
+				{
+					if(dow != p->roots[-i])
+						dow->owner = p->roots[-i];
+				}
+			}
+		}
+		if(p->roots[-i] == NULL)
+			create_rnode(i,p);
+	}
 }
 
 void del_rnode(rnode * rn)
@@ -304,13 +279,21 @@ rnode * ult_owner(rnode * r)
 		return NULL;
 	}
 	while(r->owner != NULL)
+	{
+	printf("hello!\n");
 		r = r->owner;
+	}
 	return r;
 }
 
 void create_rnode(int i, point * p)
 {
 	int j;
+	if(i < p->chi || i>0)
+	{
+		printf("This is no good\n");
+		return;
+	}
 	root * R = p->I->R;
 	rnode * new = malloc(sizeof(rnode));
 	while(R->level != i)
@@ -320,6 +303,7 @@ void create_rnode(int i, point * p)
 			printf("New level: %d.\n", R->level - 1);
 			R->next = malloc(sizeof(root));
 			R->next->level = R->level - 1;
+			R->next->Euler = 0;
 			R->next->names = 0;
 			R->next->list = NULL;
 			R->next->next = NULL;
@@ -342,49 +326,6 @@ void create_rnode(int i, point * p)
 	p->roots[-i] = new;
 }
 
-/* Is this function even used?
-void put_roots(point * p)
-{
-	int i,j;
-	rnode * r1;
-	rnode * r2;
-	for(i=0; i>=p->chi; i--)
-	{
-		p->roots[-i] = NULL;
-		for(j=0; j<p->I->nu; j++)
-		{
-			if(p->coord[p->I->bad[j]] && p->down[j]->chi >= i)
-			{
-				if(p->roots[-i] == NULL)
-				{
-					printf("ping\n");
-					p->roots[-i] = ult_owner(p->down[j]->roots[-i]);
-					printf("pong\n");
-				}
-				if(p->roots[-i] != NULL)
-				{
-					printf("ping\n");
-					r1 = ult_owner(p->roots[-i]);
-					r2 = ult_owner(p->down[j]->roots[-i]);
-					printf("pong\n");
-					if(r1 != r2)
-						r2->owner = r1;
-				}
-			}
-		}
-		if(p->roots[-i] == NULL)
-			create_rnode(i, p);
-	}
-}*/
-
-void finish_roots(point * p)
-{
-	int i;
-	for(i=0; i>=p->chi; i--)
-		if(p->roots[-i] == NULL)
-			create_rnode(i, p);
-}
-
 void print_data(data * I)
 {
 	if(I->R == NULL)
@@ -399,14 +340,15 @@ void print_data(data * I)
 	while(run != NULL)
 	{
 		printf("\nLevel %d:\n", run->level);
+		printf("Euler characteristic is %d.\n", run->Euler);
 		rnrun = run->list;
 		while(rnrun != NULL)
 		{
 			if(rnrun->owner == NULL)
 			{
-				printf("Item no. %d", rnrun->name);
+				printf("Component named %d", rnrun->name);
 				if(rnrun->parent == NULL)
-					printf(" has no parent.\n");
+					printf(" has the unique parent.\n");
 				else
 					printf(" has parent %d.\n", ult_owner(rnrun->parent)->name);
 				eu++;
@@ -442,11 +384,18 @@ void calculate_root(data * I)
 	for(i=0; i<I->nu; i++)
 		printf(" %d", p->I->ZKbad[i]);
 	printf("\n");
-	
+
+	if(I->format)
+		I->out = fopen("output", "w");
+
+	if(I->out == NULL)
+		I->format = 0;
 
 	counter = 0;
 	neg = 0;
-	int toobig;
+	int toobig, sg, m;
+	root * rd;
+
 	while(p != NULL)
 	{
 //		if(counter++ % 100000 == 0)
@@ -458,8 +407,8 @@ void calculate_root(data * I)
 			printf(", min is %d, chi is %d", p->min, p->chi);
 			printf(" and p = %p\n", p);
 //		}
-//		if(counter % 1000000 == 0)
-//			printf("%d million points down!\n", counter/1000000);
+		if(counter % 1000000 == 0)
+			printf("%d million points down!\n", counter/1000000);
 		if(p->chi<1)
 			neg++;
 		// The following constructs all relevant points in the cube with
@@ -488,35 +437,91 @@ void calculate_root(data * I)
 				}
 			}
 		}
-		for(s=1; s<I->nup; s*=2)
-		{
-			step = p->updown[p->I->nup*s];
-			dummy = p->min + pos(p->chi - step->chi);
-			if(step->min > dummy)
-				step->min = dummy;
 
-			process_roots(s, p);
-			finish_roots(p);
+		process_roots(p);
+		for(i=0; i>=p->chi; i--)
+			printf("%p\n", ult_owner(p->roots[-i]));
+		p->min = 0;
+		
+		for(i=0; i<I->nu; i++)
+		{
+			if(!(p->floor&(1<<i)))
+			{
+				dummy = p->updown[1<<i]->min
+				         + pos(p->updown[1<<i]->chi - p->chi);
+				if(min > dummy)
+				p->min = dummy;
+			}
+		}
+		printf("min is %d\n", p->min);
+
+		for(s=0; s<I->nup; s++)
+		{
+			if(!(p->ceil & s))
+			{
+				rd = I->R;
+				sg = sign(s, I->nu);
+				m = max_chi(p, s);
+				while(rd != NULL && rd->level >= m)
+				{
+					rd->Euler += sg;
+					rd = rd->next;
+				}
+			}
 		}
 		
-//		while(bot->level < p->level - p->I->nu)
-//		{
-//			bot1 = bot->next;
-//			del_point(bot);
-//			bot = bot1;
-//		}
+		while(bot->level < p->level - p->I->nu)
+		{
+			bot1 = bot->next;
+			del_point(bot);
+			bot = bot1;
+		}
 
 		I->min = p->min;
-	//	printf("p = %p, p->next = %p\n", p, p->next);
+
+		if(p->I->format)
+		{
+			fprintf(p->I->out, "m[%d", p->coord[p->I->bad[0]] + 1);
+			for(i=1; i<p->I->nu; i++)
+				fprintf(p->I->out, ",%d", p->coord[p->I->bad[i]] + 1);
+			fprintf(p->I->out, "] = %d\n", p->chi);
+		}
+
 		p = p->next;
 	}
+	if(I->format)
+		fclose(I->out);
+
 	while(bot != NULL)
 	{
 		bot1 = bot->next;
 		del_point(bot);
 		bot = bot1;
-		bot->prev = NULL;
 	}
+}
+
+int sign(int s, int nu)
+{
+	int i;
+	int r = 0;
+	for(i=0; i<nu; i++)
+		if(s&(1<<i))
+			r++;
+	if(r/2*2 == r)
+		return  1;
+	else
+		return -1;
+}
+
+int max_chi(point * p, int s)
+{
+	int r = p->chi;
+	int i;
+	for(i=0; i<p->I->nup; i++)
+		if((i&s) == i && p->updown[p->I->nup*i] != NULL
+		              && p->updown[p->I->nup*i]->chi > r)
+			r = p->updown[p->I->nup*i]->chi;
+	return r;
 }
 
 void del_data(data * I)
@@ -549,4 +554,12 @@ void flush_root(data * I)
 	}
 	I->R = NULL;
 	I->min = 0;
+}
+
+void get_filename(data * I)
+{
+	/*
+	 * Since I don't know how to handle filenames, this function doesnt't
+	 * do anything right now.
+	 */
 }
