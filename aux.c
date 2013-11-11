@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "aux.h"
 
@@ -18,6 +19,8 @@ data * init_data()
 	I->m = NULL;
 	I->min = 0;
 	I->R = NULL;
+	I->unb = (rnode*) malloc(sizeof(rnode));
+	I->unb->owner = NULL;
 	I->format = 0;
 	I->out = NULL;
 	return I;
@@ -27,13 +30,14 @@ root * init_root()
 {
 	root * R = malloc(sizeof(root));
 	R->level = 0;
-	R->Euler = 0;
+	R->Euler = -1;
 	R->names = 0;
 	R->next = NULL;
 	R->list = NULL;
+	R->dlist = NULL;
 }
 
-point * init_point(data*I, root*R)
+point * init_point(data * I)
 {
 	int i,j;
 	point * p = malloc(sizeof(point));
@@ -41,14 +45,15 @@ point * init_point(data*I, root*R)
 	for(i=0; i<I->n; i++)
 		p->coord[i] = 0;
 	p->chi = 0;
+//	p->dchi = 0;
 	p->min = 0;
-	p->newcomp = p->chi+1;
 	p->level = 0;
 	p->I = I;
 	p->next = NULL;
 	p->prev = NULL;
 	p->floor = I->nup - 1;
 	p->ceil = 0;
+	p->unbound = 0;
 	p->updown = malloc(I->nup*I->nup*sizeof(point*));
 	for(i=0; i<I->nup; i++)
 	{
@@ -60,8 +65,8 @@ point * init_point(data*I, root*R)
 				p->updown[I->nup*i + i] = p;
 		}
 	}
-	p->roots = (rnode **) malloc(sizeof(rnode*));
-	create_rnode(0, p);
+	p->roots = NULL;
+	p->droots = NULL;
 	return p;
 }
 
@@ -70,13 +75,17 @@ point * create_point(int s, point * p)
 	int i,j,k,top;
 	int nup = p->I->nup;
 	point * new = malloc(sizeof(point));
+	new->roots = NULL;
+	new->droots = NULL;
 	new->coord = malloc(p->I->n*sizeof(int));
 	new->I = p->I;
+	new->min = 0;
 
 	int sm = 0;
 	while( (s & (1<<sm)) == 0)
 		sm++;
 	point * below = p->updown[nup*(s - (1<<sm))];
+	new->unbound = below->unbound;
 
 	new->level = 0;
 
@@ -86,6 +95,7 @@ point * create_point(int s, point * p)
 	}
 
 	new->chi = below->chi;
+//	new->dchi = 0;
 
 	ALN(sm, new);
 
@@ -220,6 +230,7 @@ void del_point(point * p)
 	free(p->coord);
 	free(p->updown);
 	free(p->roots);
+	free(p->droots);
 	if(p->next != NULL)
 		p->next->prev = p->prev;
 	if(p->prev != NULL)
@@ -235,6 +246,7 @@ void process_roots(point * p)
 	p->roots = (rnode**) malloc((-p->chi+1)*sizeof(rnode*));
 	point * d;
 	rnode * dow;
+	root * R = p->I->R;
 	for(i=0; i>=p->chi; i--)
 	{
 		p->roots[-i] = NULL;
@@ -242,6 +254,7 @@ void process_roots(point * p)
 		{
 			if(p->floor & (1<<j))
 				continue;
+
 			d = p->updown[1<<j];
 			if(d->chi <= i)
 			{
@@ -260,6 +273,78 @@ void process_roots(point * p)
 		if(p->roots[-i] == NULL)
 			create_rnode(i,p);
 	}
+
+	for(i=0; i>p->I->nu; p++)
+		if(p->floor&(1<<i))
+			p->unbound = 0;
+		else if(p->updown[1<<i]->unbound > p->unbound)
+			p->unbound = p->updown[1<<i]->unbound;
+	int nchi = -pos(-p->chi);
+	int nrchi;
+	if(p->unbound >= nchi)
+	{
+		p->unbound = nchi;
+		return;
+	}
+	p->droots = (rnode**) malloc((nchi - p->unbound) * sizeof(rnode*));
+	for(i=nchi-1; i>=p->unbound; i--)
+	{
+		p->droots[-i +nchi-1] = NULL;
+		for(j=0; j<p->I->nu; j++)
+		{
+			d = p->updown[1<<j];
+			nrchi = -pos(-d->chi);
+			if(nrchi > i)
+			{
+				dow = ult_owner(d->droots[-i +nrchi-1]);
+				if(p->droots[-i +nchi-1] == NULL)
+					p->droots[-i +nchi-1] = dow;
+				else if(p->droots[-i +nchi-1] == p->I->unb
+				                       && dow != p->I->unb)
+				 	dow->owner = p->I->unb;
+				else
+					ult_owner(p->droots[-i +nchi-1])->owner = dow;
+			}
+		}
+		if(p->droots[-i +nchi-1] == NULL)
+			create_drnode(i,p);
+	}
+	
+//	p->droots = (rnode*) malloc(
+/*	if(p->dchi > 0)
+		return;
+	p->droots = (rnode**) malloc((-p->chi + p->dchi)*sizeof(rnode*));
+	for(i=p->dchi-1; i>=p->chi; i--)
+	{
+		p->droots[-i +p->dchi-1] = NULL;
+		for(j=0; j<p->I->nu; j++)
+		{
+			if(p->floor & (1<<j))
+			{
+				p->droots[-i +p->dchi-1] = p->roots[-i]->R->dlist;
+				continue;
+			}
+			d = p->updown[1<<j];
+			if(d->dchi > 0)
+			{
+				p->droots[-i +p->dchi-1] = p->roots[-i]->R->dlist;
+				continue;
+			}
+			if(d->dchi > i && d->chi <= i)
+			{
+				dow = ult_owner(d->droots[-i +d->dchi-1]);
+				if(p->droots[-i +p->dchi-1] == NULL)
+					p->droots[-i +p->dchi-1] = dow;
+				else if(dow == p->roots[-i]->R->dlist
+				        && p->droots[-i +p->dchi-1] != p->roots[-i]->R->dlist)
+					p->droots[-i +p->dchi-1]->owner = dow;
+				else if(p->droots[-i +p->dchi-1] != dow)
+					dow->owner = p->droots[-i +p->dchi-1];
+			}
+		}
+		if(p->droots[-i +p->dchi-1] == NULL)
+			create_drnode(i,p);
+	}*/
 }
 
 void del_rnode(rnode * rn)
@@ -280,10 +365,19 @@ rnode * ult_owner(rnode * r)
 	}
 	while(r->owner != NULL)
 	{
-	printf("hello!\n");
 		r = r->owner;
 	}
 	return r;
+}
+
+void create_drnode(int i, point * p)
+{
+	int nchi = -pos(-p->chi);
+	root * R = p->roots[-i +nchi-1]->R;
+	p->droots[-i +nchi-1] = (rnode*) malloc(sizeof(rnode));
+	p->droots[-i +nchi-1]->next = R->dlist->next;
+	p->droots[-i +nchi-1]->prev = R->dlist;
+	p->droots[-i +nchi-1]->name = R->dnames++;
 }
 
 void create_rnode(int i, point * p)
@@ -300,13 +394,25 @@ void create_rnode(int i, point * p)
 	{
 		if(R->next == NULL)
 		{
-			printf("New level: %d.\n", R->level - 1);
+//			printf("New level: %d.\n", R->level - 1);
 			R->next = malloc(sizeof(root));
 			R->next->level = R->level - 1;
-			R->next->Euler = 0;
+			R->next->Euler = -1;
 			R->next->names = 0;
+			R->next->dnames = 0;
 			R->next->list = NULL;
 			R->next->next = NULL;
+
+			R->next->dlist = (rnode*) malloc(sizeof(rnode));
+			R->next->dlist->next = NULL;
+			R->next->dlist->prev = NULL;
+			R->next->dlist->name = R->next->dnames++;
+		//	if(i != p->dchi-1)
+		//		R->next->dlist->parent = R->dlist;
+		//	else
+				R->next->dlist->parent = NULL;
+			R->next->dlist->owner = NULL;
+			R->next->dlist->R = R->next;
 		}
 		R = R->next;
 	}
@@ -315,6 +421,7 @@ void create_rnode(int i, point * p)
 	if(R->list != NULL)
 		R->list->prev = new;
 	R->list = new;
+	new->R = R;
 	new->name = R->names++;
 
 	if(i!=0)
@@ -335,13 +442,14 @@ void print_data(data * I)
 	}
 	root * run = I->R;
 	rnode * rnrun;
-	int eu = -1;
+	int rkn = 0;
 	int lev = 1;
 	while(run != NULL)
 	{
 		printf("\nLevel %d:\n", run->level);
-		printf("Euler characteristic is %d.\n", run->Euler);
+		printf("Reduced Euler characteristic is %d.\n", run->Euler);
 		rnrun = run->list;
+		rkn--;
 		while(rnrun != NULL)
 		{
 			if(rnrun->owner == NULL)
@@ -351,14 +459,39 @@ void print_data(data * I)
 					printf(" has the unique parent.\n");
 				else
 					printf(" has parent %d.\n", ult_owner(rnrun->parent)->name);
-				eu++;
+				rkn++;
 			}
 			rnrun = rnrun->next;
 		}
+
+/*		rnrun = run->dlist;
+		printf("\n");
+		while(rnrun != NULL)
+		{
+			if(rnrun->owner == NULL)
+			{
+				printf("Complementary component named %d", rnrun->name);
+				if(rnrun->parent == NULL)
+					printf(" has the unique parent.\n");
+				else
+					printf(" has parent %d.\n", ult_owner(rnrun->parent)->name);
+			}
+			rnrun = rnrun->next;
+		}*/
+
+
+
 		run = run->next;
 		lev--;
 	}
-	printf("\neu_0: %d, min: %d, min level: %d\n", eu, I->min, lev);
+
+	printf("\n");
+	printf("eu(H^*):                      %d\n", Euler(I->R) - lev);
+	printf("Minimal value of chi:         %d\n", lev);
+	printf("rk(H^0_red):                  %d\n", rkn);
+	printf("eu(H^0):                      %d\n", rkn - lev);
+	printf("Minimal path cohomology:      %d -- This is wrong at the moment!\n",
+		I->min);
 }
 
 
@@ -366,7 +499,7 @@ void calculate_root(data * I)
 {
 	root * R = init_root();
 	I->R = R;
-	point * p = init_point(I, R);
+	point * p = init_point(I);
 
 	int s,i,dummy,counter,neg,min;
 
@@ -376,14 +509,6 @@ void calculate_root(data * I)
 	point * run;
 	point * bot1;
 
-
-	printf("bads:");
-	for(i=0; i<I->nu; i++)
-		printf(" %d", p->I->bad[i]);
-	printf("  bad values:");
-	for(i=0; i<I->nu; i++)
-		printf(" %d", p->I->ZKbad[i]);
-	printf("\n");
 
 	if(I->format)
 		I->out = fopen("output", "w");
@@ -398,15 +523,14 @@ void calculate_root(data * I)
 
 	while(p != NULL)
 	{
-//		if(counter++ % 100000 == 0)
-//		{
-			counter++;
+		if(++counter % 100000 == 0)
+		{
 			printf("\nwe're at");
 			for(i=0; i<I->nu; i++)
 				printf(" %d", p->coord[p->I->bad[i]]);
 			printf(", min is %d, chi is %d", p->min, p->chi);
 			printf(" and p = %p\n", p);
-//		}
+		}
 		if(counter % 1000000 == 0)
 			printf("%d million points down!\n", counter/1000000);
 		if(p->chi<1)
@@ -437,10 +561,8 @@ void calculate_root(data * I)
 				}
 			}
 		}
-
+//		p->dchi = max_chi(p, ~p->ceil);
 		process_roots(p);
-		for(i=0; i>=p->chi; i--)
-			printf("%p\n", ult_owner(p->roots[-i]));
 		p->min = 0;
 		
 		for(i=0; i<I->nu; i++)
@@ -449,11 +571,10 @@ void calculate_root(data * I)
 			{
 				dummy = p->updown[1<<i]->min
 				         + pos(p->updown[1<<i]->chi - p->chi);
-				if(min > dummy)
+				if(p->min > dummy)
 				p->min = dummy;
 			}
 		}
-		printf("min is %d\n", p->min);
 
 		for(s=0; s<I->nup; s++)
 		{
@@ -498,6 +619,17 @@ void calculate_root(data * I)
 		del_point(bot);
 		bot = bot1;
 	}
+}
+
+int Euler(root * R)
+{
+	int r = 0;
+	while(R != NULL)
+	{
+		r += R->Euler;
+		R = R->next;
+	}
+	return r;
 }
 
 int sign(int s, int nu)

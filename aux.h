@@ -33,7 +33,7 @@ data * init_data();
 root * init_root();
 
 // Initiates a point
-point * init_point();
+point * init_point(data * I);
 
 // Creates a new point up in the direction of s.
 point * create_point(int s, point * p);
@@ -59,6 +59,9 @@ rnode * ult_owner(rnode * r);
 
 // Create a new set of rnodes going up from p int the s direction
 void create_rnodes(point * p, point * u);
+
+// Create a new dual rnode in the root R at level i
+void create_drnode(int i, point * p);
 
 // Create a new rnode in the root R at level i
 void create_rnode(int i, point * p);
@@ -90,7 +93,9 @@ struct root
 	int level;
 	int Euler;
 	int names;
+	int dnames;
 	rnode * list;
+	rnode * dlist;
 	root * next;
 };
 
@@ -101,6 +106,7 @@ struct rnode
 	int name;
 	rnode * parent;
 	rnode * owner;
+	root * R;
 };
 
 struct data
@@ -112,8 +118,8 @@ struct data
 	int *bad;
 	int *ZKbad;
 	root * R;
-	root * DR;
 	int min;
+	rnode * unb;
 	int format;
 	FILE * out;
 };
@@ -123,14 +129,15 @@ struct point
 	int * coord;
 	int chi;
 	int min;
-	int newcomp;
 	int level;
 	int floor;
 	int ceil;
+	int unbound;
 	data * I;
 	point * next;
 	point * prev;
 	point ** updown;
 	rnode ** roots;
+	rnode ** droots;
 };
 #endif

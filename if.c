@@ -68,6 +68,7 @@ void help(char c)
 			printf("ib  to enter the bad vertices,\n");
 			printf("iI  to enter the intersection matrix,\n");
 			printf("iK  to enter the canonical divisor on the bad vertices,\n");
+			printf("if  followed by 1 to write the values of chi into a file.\n");
 			break;
 		case 'p':
 			printf("The command p prints the root.\n");
@@ -163,6 +164,8 @@ void input_data(data * I, FILE *f)
 			break;
 		case 'f':
 			fscanf(f, "%d", &(I->format));
+			if(I->format)
+				printf("The values of chi will be written into the file output.");
 			break;
 	}
 }

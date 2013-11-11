@@ -40,6 +40,13 @@ K
 followed by nu integers to specify the values of the anti-canonical divisor Z_K
 on the bad vertices. This should be preceded by entering nu via v.
 
+.TP
+f
+followd by an integer to specify output format. If a nonzero value is entered,
+then the program writes the values of chi into the file 'output'. This file
+is owerwritten each time, so make sure to move it somewhere else if you want
+to keep it.
+
 .SS
 p
 Print data. The p should be followed by one of the characters nvIbK to print
@@ -62,7 +69,9 @@ The files data1, data2 and data3 are examples which calculate the roots of
 one topological type each.
 
 .SH HISTORY & ACKNOWLEDGEMENTS
+The lattice cohomology was introduced by Némethi András as an invariant
+of links of surface singularities.
 The main theoretical ingredient here is Tamsás László's reduction theorem
 and a generalized form of Laufer's computation sequence.
-A "nice enough" version of this program was made by Baldur Sigurdsson,
-baldur at renyi dot hu, in 2013.
+The program was made by Baldur Sigurðsson,
+baldur at renyi dot hu, started in 2013.
