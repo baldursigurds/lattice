@@ -165,7 +165,9 @@ void input_data(data * I, FILE *f)
 		case 'f':
 			fscanf(f, "%d", &(I->format));
 			if(I->format)
-				printf("The values of chi will be written into the file output.");
+				printf("The values of chi will be written into the file output.\n");
+			else
+				printf("The values of chi will be lost after the computation.\n");
 			break;
 	}
 }
