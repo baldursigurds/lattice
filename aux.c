@@ -35,13 +35,13 @@ root * init_root()
 	R->next = NULL;
 	R->list = NULL;
 
-	R->dlist = (rnode*) malloc(sizeof(rnode));
-	R->dlist->next = NULL;
-	R->dlist->prev = NULL;
-	R->dlist->name = R->dnames++;
-	R->dlist->parent = NULL;
-	R->dlist->owner = NULL;
-	R->dlist->R = R;
+//	R->dlist = NULL;
+//	R->dlist->next = NULL;
+//	R->dlist->prev = NULL;
+//	R->dlist->name = R->dnames++;
+//	R->dlist->parent = NULL;
+//	R->dlist->owner = NULL;
+//	R->dlist->R = R;
 }
 
 point * init_point(data * I)
@@ -91,6 +91,7 @@ point * create_point(int s, point * p)
 	while( (s & (1<<sm)) == 0)
 		sm++;
 	point * below = p->updown[nup*(s - (1<<sm))];
+	new->unbound = p->unbound;
 
 	new->level = 0;
 
@@ -247,13 +248,11 @@ void del_point(point * p)
 
 void process_roots(point * p)
 {
-	if(p->chi > 0)
-	{
-		p->unbound = 0;
-		return;
-	}
 	int i,j;
-	p->roots = (rnode**) malloc((-p->chi+1)*sizeof(rnode*));
+	if(p->chi<=0)
+		p->roots = (rnode**) malloc((-p->chi+1)*sizeof(rnode*));
+	else
+		p->roots = NULL;
 	point * d;
 	rnode * dow;
 	root * R = p->I->R;
@@ -284,27 +283,24 @@ void process_roots(point * p)
 			create_rnode(i,p);
 	}
 
-	if(p->floor || p->ceil)
+
+
+	for(j=1; j<p->I->nup; j++)
+		if(!(j & p->floor) && p->updown[j]->unbound > p->unbound)
+			p->unbound = p->updown[j]->unbound;
+
+	if(p->unbound > p->chi-1 || p->floor || p->ceil)
 	{
 		p->unbound = p->chi-1;
-		return;
-	}
-
-	p->unbound = p->updown[1]->unbound;
-	for(i=2; i<p->I->nup; i++)
-		if(p->updown[i]->unbound > p->unbound)
-			p->unbound = p->updown[i]->unbound;
-
-	if(p->unbound >= p->chi-1)
-	{
-		p->unbound = p->chi-1;
-		return;
 	}
 
 	int nrchi;
 
-	p->droots = (rnode**) malloc((p->chi - p->unbound-1) * sizeof(rnode*));
+	if(p->chi - p->unbound-1 > 0)
+		p->droots = (rnode**) malloc((p->chi - p->unbound-1) * sizeof(rnode*));
 
+	if(p->chi-1 != p->unbound)
+		printf("hello %d %d  %d %d\n", p->coord[p->I->bad[0]], p->coord[p->I->bad[1]], p->chi, p->unbound);
 	for(i=p->chi-1; i>p->unbound; i--)
 	{
 		p->droots[-i +p->chi-1] = NULL;
@@ -312,10 +308,9 @@ void process_roots(point * p)
 		{
 			d = p->updown[j];
 			nrchi = -pos(-d->chi);
+			dow = ult_owner(d->droots[-i +nrchi-1]);
 			if(nrchi > i && i > d->unbound)
 			{
-				dow = ult_owner(d->droots[-i +nrchi-1]);
-	printf("hello %p %p\n", d->droots[-i +nrchi-1], d->droots[-i +nrchi-1]->owner);
 				if(p->droots[-i +p->chi-1] == NULL)
 					p->droots[-i +p->chi-1] = dow;
 				else if(p->droots[-i +p->chi-1] == p->I->unb
@@ -328,6 +323,25 @@ void process_roots(point * p)
 		if(p->droots[-i +p->chi-1] == NULL)
 		{
 			create_drnode(i,p);
+		}
+	}
+
+	for(j=1; j<p->I->nup; j++)
+	{
+		if(!(j & p->floor))
+		{
+			d = p->updown[j];
+			nrchi = -pos(-d->chi);
+			if(p->unbound < nrchi-1)
+				i = p->unbound;
+			else
+				i = nrchi-1;
+			for(; i>d->unbound; i--)
+			{
+				dow = ult_owner(d->droots[-i +nrchi-1]);
+				if(dow != p->I->unb)
+					dow->owner = p->I->unb;
+			}
 		}
 	}
 	
@@ -398,16 +412,16 @@ rnode * ult_owner(rnode * r)
 
 void create_drnode(int i, point * p)
 {
+	printf("Creating rnode!\n");
 	root * R = p->I->R;
 	while(R->level != i)
 		R = R->next;
 	p->droots[-i +p->chi-1] = (rnode*) malloc(sizeof(rnode));
 
-	p->droots[-i +p->chi-1]->next = R->dlist->next;
+	p->droots[-i +p->chi-1]->next = R->dlist;
 	if(p->droots[-i +p->chi-1]->next != NULL)
 		p->droots[-i +p->chi-1]->next->prev = p->droots[-i +p->chi-1];
-	p->droots[-i +p->chi-1]->prev = R->dlist;
-	R->dlist->next = p->droots[-i +p->chi-1];
+	p->droots[-i +p->chi-1]->prev = NULL;
 
 	p->droots[-i +p->chi-1]->owner = NULL;
 
@@ -435,18 +449,8 @@ void create_rnode(int i, point * p)
 			R->next->names = 0;
 			R->next->dnames = 0;
 			R->next->list = NULL;
+			R->next->dlist = NULL;
 			R->next->next = NULL;
-
-			R->next->dlist = (rnode*) malloc(sizeof(rnode));
-			R->next->dlist->next = NULL;
-			R->next->dlist->prev = NULL;
-			R->next->dlist->name = R->next->dnames++;
-		//	if(i != p->dchi-1)
-		//		R->next->dlist->parent = R->dlist;
-		//	else
-				R->next->dlist->parent = NULL;
-			R->next->dlist->owner = NULL;
-			R->next->dlist->R = R->next;
 		}
 		R = R->next;
 	}
@@ -475,7 +479,7 @@ void print_data(data * I)
 		return;
 	}
 	root * run = I->R;
-	rnode * rnrun;
+	rnode * rnrun = NULL;
 	int rkn = 0;
 	int lev = 1;
 	while(run != NULL)
@@ -511,7 +515,7 @@ void print_data(data * I)
 					printf(" has parent %d.\n", ult_owner(rnrun->parent)->name);
 			}
 			rnrun = rnrun->next;
-		}*/
+		} */
 
 
 
@@ -694,6 +698,7 @@ void del_data(data * I)
 	free(I->bad);
 	free(I->ZKbad);
 	flush_root(I);
+	free(I->unb);
 	free(I);
 }
 
