@@ -530,6 +530,9 @@ void print_data(data * I)
 	printf("eu(H^0):_____________________ %d\n", rkn - lev);
 	printf("Minimal path cohomology:_____ %d\n",
 		I->min);
+	printf("WARNING: The minimal path cohomology presented here is only and upper bound.\n");
+	printf("Counterexamples are not known, but a reduction theorem in the style of László\n");
+	printf("has not been proved for this invariant.\n");
 }
 
 

@@ -64,6 +64,19 @@ Flush data, that is, forget the root if it has been calculated.
 q
 Quit the program.
 
+.SH NOTE
+The program calculates the minimal path cohomolgy only in the reduced lattice.
+This means that the minimum ranges over only a particular set of paths. In
+practice, we have not found this minimum to be bigger than the actual minimum
+(assuming we have calculated the actual minimum) but this reduced minimum
+has not been proved to coincide with the actual one in general.
+
+Since any path gives an upper bound for the geometric genus, it follows that
+if the reduced minimal path cohomology produced by the program coincides with
+the geometric genus of some analytic structure with the given graph, then this
+is really the minimal path cohomology. This is the case e.g. for Newton
+nondegenerate hypersurface singularities.
+
 .SH EXAMPLES
 The files data1, data2 and data3 are examples which calculate the roots of
 one topological type each.
