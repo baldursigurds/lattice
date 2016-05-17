@@ -88,6 +88,12 @@ void flush_root(data * I);
 int element(int i, int s);
 int intersection(int a, int b, int nup);
 
+
+int Euler(root * R);
+int sign(int s, int nu);
+int max_chi(point * p, int s);
+void get_filename(data * I);
+
 struct root
 {
 	int level;
