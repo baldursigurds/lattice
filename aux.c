@@ -7,16 +7,16 @@
 
 // The basic set of data to be analized
 
-data * init_data()
+data * init_data(int n, int nu)
 {
 	int i;
 	data * I = malloc(sizeof(data));
-	I->n = 0;
-	I->nu = 0;
-	I->nup = 1;
-	I->bad = NULL;
-	I->ZKbad = NULL;
-	I->m = NULL;
+	I->n = n;
+	I->nu = nu;
+	I->nup = 1<<nu;
+	I->bad = (int*) malloc(nu*sizeof(int));
+	I->ZKbad = (int*) malloc(nu*sizeof(int));
+	I->m = (int*) malloc(n*n*sizeof(int));
 	I->min = 0;
 	I->R = NULL;
 	I->unb = (rnode*) malloc(sizeof(rnode));
@@ -34,6 +34,7 @@ root * init_root()
 	R->names = 0;
 	R->next = NULL;
 	R->list = NULL;
+    return R;
 
 //	R->dlist = NULL;
 //	R->dlist->next = NULL;

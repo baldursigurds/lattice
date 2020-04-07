@@ -6,7 +6,7 @@
 
 int main(int argc, char ** argv)
 {
-	data * I = init_data();
+	data * I = init_data(0,0);
 	int i;
 	for(i=1; i<argc; i++)
 	{

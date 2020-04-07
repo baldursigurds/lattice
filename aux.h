@@ -27,7 +27,7 @@ typedef struct rnode rnode;
 typedef struct point point;
 
 // Initiates basic data
-data * init_data();
+data * init_data(int n, int nu);
 
 // Initiates a root
 root * init_root();
