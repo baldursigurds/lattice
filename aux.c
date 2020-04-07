@@ -9,7 +9,7 @@
 
 data * init_data()
 {
-	int i,j;
+	int i;
 	data * I = malloc(sizeof(data));
 	I->n = 0;
 	I->nu = 0;
@@ -79,7 +79,7 @@ point * init_point(data * I)
 
 point * create_point(int s, point * p)
 {
-	int i,j,k,top;
+	int i,j;
 	int nup = p->I->nup;
 	point * new = malloc(sizeof(point));
 	new->roots = NULL;
@@ -120,7 +120,6 @@ point * create_point(int s, point * p)
 	// This configures updown data pointing at or from the new point
 	
 	new->updown = malloc(p->I->nup*p->I->nup*sizeof(point*));
-	point * dummy;
 	int ip, jp, c;
 
 	for(i=0; i<nup; i++)
@@ -234,7 +233,6 @@ void ALN(int s, point * p)
 
 void del_point(point * p)
 {
-	int i;
 	free(p->coord);
 	free(p->updown);
 	free(p->roots);
@@ -255,7 +253,7 @@ void process_roots(point * p)
 		p->roots = NULL;
 	point * d;
 	rnode * dow;
-	root * R = p->I->R;
+//    root * R = p->I->R;
 	for(i=0; i>=p->chi; i--)
 	{
 		p->roots[-i] = NULL;
@@ -430,7 +428,6 @@ void create_drnode(int i, point * p)
 
 void create_rnode(int i, point * p)
 {
-	int j;
 	if(i < p->chi || i>0)
 	{
 		printf("This is no good\n");
@@ -542,7 +539,7 @@ void calculate_root(data * I)
 	I->R = R;
 	point * p = init_point(I);
 
-	int s,i,dummy,counter,neg,min;
+	int s,i,dummy,counter,neg;
 
 	point * step;
 	point * bot = p;
@@ -563,7 +560,7 @@ void calculate_root(data * I)
 
 	counter = 0;
 	neg = 0;
-	int toobig, sg, m, l;
+	int sg, m;
 	root * rd;
 
 	printf("\nNumber of points is about %d million.\n", total/1000000);
