@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <latco.h>
 
-#include "aux.h"
 #include "if.h"
 
 
