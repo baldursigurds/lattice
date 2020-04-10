@@ -1,32 +1,30 @@
 LATTICE
 
-This is a program which calculates the zeroth lattice cohomology of a
-singularity and the root, as well as the rank of the minimal path cohomology.
-It uses Tamás' reduction theorem to reduce to a smaller dimensional case. After
-that, it's a simple width first search algorithm to locate components.
+lattice is an interface to the shared library latco, which calculates
+the zeroth lattice cohomology of a singularity and the root, as well as
+Euler characteristics, and gives a bound for the rank of the minimal
+path lattice cohomology. It uses László's reduction theorem to reduce to
+a smaller dimensional case. Unfortunately, such a theorem has not been
+proved for the minimal path lattice cohomology, hence the bound.
 
-HOW TO RUN
+INSTALL
 
-To run the program, download the zip file found on the project's homepage and
-extract it to a local directory. In the directory simply run the command make,
-which produces the executable. This amounts to the following commands being run
-in the directory containing the .zip file
+First install latco, available at
 
-unzip baldursigurds-lattice-NUMBER.zip
-cd baldursigurds-lattice-NUMBER
+https://bitbucket.org/baldursigurds/latco
+
+Then, download the sources to lattice, and run 
+
 make
+sudo make install
 
-where NUMBER is the number in the title of the file. To try out the program, in
-the same directory, run e.g.
+The files data1, data2 and data3, distributed with the software, provide
+the necessary data for one topological type each. The program can also
+be run without arguments for manual input. For further information on
+how to enter and run data, consult the manual lattice(1), which is also
+available online
 
-./lattice data1
-
-The files data1, data2 and data3 provide the necessary data for one topological
-type each. The program can also be run without arguments for manual input. For
-further information on how to enter and run data, consult the manual, which
-can be found in the man directory, as well as online
-
-http://renyi.hu/~baldur/lattice.html
+https://notendur.hi.is/bas4/man_lattice.html
 
 Baldur Sigurðsson
-baldur at renyi dot hu
+baldursigurds at gmail dot com
