@@ -11,7 +11,7 @@ INSTALL
 
 First install latco, available at
 
-https://bitbucket.org/baldursigurds/latco
+https://github.com/baldursigurds/latco
 
 Then, download the sources to lattice, and run 
 
@@ -22,9 +22,9 @@ The files data1, data2 and data3, distributed with the software, provide
 the necessary data for one topological type each. The program can also
 be run without arguments for manual input. For further information on
 how to enter and run data, consult the manual lattice(1), which is also
-available online
+available online:
 
-https://notendur.hi.is/bas4/man_lattice.html
+https://baldursigurds.github.io/man_lattice.html
 
 Baldur Sigurðsson
 baldursigurds at gmail dot com
